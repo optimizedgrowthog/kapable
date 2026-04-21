@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, Fraunces } from 'next/font/google'
 import './globals.css'
+import ScrollProgress from '@/components/ScrollProgress'
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -38,6 +39,7 @@ export default function RootLayout({
       className={`${plusJakarta.variable} ${fraunces.variable}`}
     >
       <body className="bg-ink text-white antialiased overflow-x-hidden">
+        <ScrollProgress />
         {children}
       </body>
     </html>

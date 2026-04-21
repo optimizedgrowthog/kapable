@@ -2,20 +2,15 @@
 
 import { motion, useReducedMotion } from 'motion/react'
 import { kapable } from '@/content/kapable'
+import { staggerContainer, easeOutQuart, viewportOnce } from '@/lib/motion'
 
 // ─── Variants ─────────────────────────────────────────────────────────────────
 
-const gridContainer = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-}
+const gridContainer = staggerContainer(0.1, 0.05)
 
 const cardVariant = {
-  hidden:  { y: 28, scale: 0.97 },
-  visible: {
-    y: 0, scale: 1,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
-  },
+  hidden:  { opacity: 0, y: 28, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: easeOutQuart } },
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -34,10 +29,10 @@ export default function GoogleReviews() {
 
         {/* ── Header ── */}
         <motion.div
-          initial={{ y: 24 }}
-          whileInView={{ y: 0 }}
-          viewport={{ once: true, amount: 0.05 }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewportOnce}
+          transition={{ duration: 0.65, ease: easeOutQuart }}
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10"
         >
           <div className="flex items-center gap-3">
@@ -72,7 +67,7 @@ export default function GoogleReviews() {
           variants={gridContainer}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0 }}
+          viewport={viewportOnce}
           className="grid md:grid-cols-3 gap-4"
         >
           {googleReviews.reviews.map((review) => (

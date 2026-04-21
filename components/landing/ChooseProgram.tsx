@@ -12,21 +12,6 @@ import { kapable } from '@/content/kapable'
 import { cn } from '@/lib/utils'
 import type { ProgramModule } from '@/content/kapable'
 
-// ─── Stagger variants ─────────────────────────────────────────────────────────
-
-const gridContainer = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
-}
-
-const gridItem = {
-  hidden:  { y: 30 },
-  visible: {
-    y: 0,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
-  },
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ChooseProgram() {

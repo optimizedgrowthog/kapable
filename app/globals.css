@@ -75,18 +75,21 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Marquee for logo wall mobile */
+/* Marquee — two-direction, speed tuneable via --marquee-duration */
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 .marquee-track {
   display: flex;
-  gap: 0;           /* chips handle their own mx-2 margin */
+  gap: 0;
   width: max-content;
-  animation: marquee 32s linear infinite;
+  animation: marquee var(--marquee-duration, 32s) linear infinite;
+  will-change: transform;
 }
-.marquee-track:hover { animation-play-state: paused; }
+.marquee-track-reverse { animation-direction: reverse; }
+/* Pause on hover at the row level so each row pauses independently */
+.marquee-viewport:hover .marquee-track { animation-play-state: paused; }
 
 /* CTA gradient button — used in multiple sections */
 .cta-btn {
@@ -102,6 +105,8 @@ body {
   transition: transform 0.15s ease, box-shadow 0.2s ease;
   cursor: pointer;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
 }
 .cta-btn:hover {
   transform: translateY(-1px);
@@ -110,6 +115,19 @@ body {
 .cta-btn:active {
   transform: translateY(0);
   box-shadow: 0 3px 10px rgba(219, 127, 58, 0.35);
+}
+/* Diagonal shine sweep on hover */
+@media (prefers-reduced-motion: no-preference) {
+  .cta-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.35) 50%, transparent 80%);
+    transform: translateX(-120%);
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .cta-btn:hover::after { transform: translateX(120%); }
 }
 
 /* Countdown digit pill */
@@ -148,6 +166,14 @@ body {
 /* Section hairline separator between adjacent dark sections */
 .hairline-top {
   border-top: 1px solid #111;
+}
+
+/* Amber hairline reveal — scaleX 0→1 on scroll (drives via motion whileInView in JSX) */
+.hairline-reveal {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #E89556 35%, #E89556 65%, transparent 100%);
+  transform-origin: left;
+  transform: scaleX(0);
 }
 
 /* ─── Radix Accordion content animation ─────────────────────────────────────── */
@@ -199,6 +225,21 @@ body {
     transparent 100%
   );
   animation: shimmer-sweep 1.35s ease-in-out infinite;
+}
+
+/* ─── WhyChooseUs sticky card stack ─────────────────────────────────────────
+   CSS-first sticky so it works on the server-rendered HTML with no useEffect.
+   overflow-clip on the section ancestor preserves sticky without scroll jank. */
+@media (min-width: 1024px) {
+  .why-outer {
+    position: relative;
+    min-height: 240px;          /* preserves scroll zone even when card collapses */
+    z-index: var(--why-z, 1);
+  }
+  .why-inner {
+    position: sticky;
+    top: var(--why-top, 96px);
+  }
 }
 
 /* ─── Reduced motion: kill all transitions/animations ─────────────────────── */

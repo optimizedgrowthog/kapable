@@ -3,21 +3,19 @@
 import { motion, useReducedMotion } from 'motion/react'
 import { kapable } from '@/content/kapable'
 import { cn } from '@/lib/utils'
+import { Marquee } from '@/components/ui/Marquee'
 import type { AlumniInstitution } from '@/content/kapable'
 
 // ─── Variants ─────────────────────────────────────────────────────────────────
 
-const gridContainer = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.055, delayChildren: 0.08 } },
+const headingVariants = {
+  hidden:  { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] as const } },
 }
 
-const logoVariant = {
-  hidden:  { opacity: 0, y: 18, scale: 0.9 },
-  visible: {
-    opacity: 1, y: 0, scale: 1,
-    transition: { duration: 0.52, ease: [0.16, 1, 0.3, 1] as const },
-  },
+const wallReveal = {
+  hidden:  { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const, delay: 0.15 } },
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -25,69 +23,74 @@ const logoVariant = {
 export default function DesignedByAlumni() {
   const prefersReduced = useReducedMotion()
   const { designedByAlumni } = kapable
-  const marqueeItems = [...designedByAlumni.institutions, ...designedByAlumni.institutions]
+  const rowTop    = designedByAlumni.institutions.slice(0, 6)
+  const rowBottom = designedByAlumni.institutions.slice(6, 12)
 
   return (
     <section className="bg-cream py-16 px-5 sm:px-6 overflow-hidden">
-      <div className="max-w-5xl mx-auto text-center">
+      <div className="max-w-6xl mx-auto text-center">
 
         {/* ── Heading ── */}
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={headingVariants}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true, amount: 0.05 }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
           className="font-display text-2xl md:text-3xl font-bold text-ink mb-12"
         >
           {designedByAlumni.heading}
         </motion.h2>
 
-        {/* ── Mobile: infinite marquee ── */}
-        <div className="md:hidden" aria-hidden="true">
-          <div className="relative">
-            <div className="pointer-events-none absolute left-0 inset-y-0 w-14 z-10"
-              style={{ background: 'linear-gradient(90deg, #FAF6F0 0%, transparent 100%)' }} />
-            <div className="pointer-events-none absolute right-0 inset-y-0 w-14 z-10"
-              style={{ background: 'linear-gradient(270deg, #FAF6F0 0%, transparent 100%)' }} />
-
-            <div className={prefersReduced ? 'flex flex-wrap gap-8 justify-center py-4' : 'overflow-hidden py-4'}>
-              <div
-                className={prefersReduced ? 'contents' : 'marquee-track'}
-                style={prefersReduced ? {} : { animationDuration: '36s' }}
-              >
-                {marqueeItems.map((inst, i) => (
-                  <div key={i} className="mx-6 flex items-center justify-center">
-                    <InstitutionLogo institution={inst} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Desktop: staggered grid ── */}
-        <motion.div
-          className="hidden md:grid grid-cols-6 gap-x-8 gap-y-10 items-center"
-          variants={gridContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.05 }}
-        >
+        {/* Screen-reader-accessible institution list (visual marquee is aria-hidden) */}
+        <ul className="sr-only" role="list" aria-label="Alumni institutions">
           {designedByAlumni.institutions.map((inst, i) => (
-            <motion.div
-              key={i}
-              variants={logoVariant}
-              whileHover={prefersReduced ? {} : { scale: 1.1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 24 }}
-              className="flex items-center justify-center opacity-75 hover:opacity-100 transition-opacity duration-200 cursor-default"
-            >
-              <InstitutionLogo institution={inst} />
-            </motion.div>
+            <li key={i}>{inst.name}</li>
           ))}
-        </motion.div>
+        </ul>
+
+        {/* ── Reduced-motion: static wrap grid ── */}
+        {prefersReduced ? (
+          <div className="flex flex-wrap gap-8 justify-center">
+            {designedByAlumni.institutions.map((inst, i) => (
+              <AlumniChip key={i} institution={inst} />
+            ))}
+          </div>
+        ) : (
+          /* ── Animated: one-shot fade-rise, then continuous reverse-marquee ── */
+          <motion.div
+            aria-hidden="true"
+            variants={wallReveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.05 }}
+            className="flex flex-col gap-8 md:gap-10"
+          >
+            <Marquee direction="right" speed={36} fadeColor="#FAF6F0">
+              {rowTop.map((inst, i) => <AlumniChip key={i} institution={inst} />)}
+            </Marquee>
+            <Marquee direction="left" speed={36} fadeColor="#FAF6F0">
+              {rowBottom.map((inst, i) => <AlumniChip key={i} institution={inst} />)}
+            </Marquee>
+          </motion.div>
+        )}
 
       </div>
     </section>
+  )
+}
+
+// ─── Alumni chip wrapper ──────────────────────────────────────────────────────
+
+function AlumniChip({ institution }: { institution: AlumniInstitution }) {
+  const prefersReduced = useReducedMotion()
+  return (
+    <motion.div
+      className="mx-5 md:mx-8 flex items-center justify-center min-w-[80px] md:min-w-[120px] opacity-75 hover:opacity-100 cursor-default"
+      whileHover={prefersReduced ? {} : { scale: 1.08 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 24 }}
+    >
+      <InstitutionLogo institution={institution} />
+    </motion.div>
   )
 }
 

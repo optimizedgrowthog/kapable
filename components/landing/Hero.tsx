@@ -5,13 +5,11 @@ import {
   motion,
   useScroll,
   useTransform,
-  useMotionValue,
-  useSpring,
   useReducedMotion,
 } from 'motion/react'
 import { kapable } from '@/content/kapable'
 import VideoPlayer from '@/components/VideoPlayer'
-import { useCountdown } from '@/lib/hooks'
+import { useCountdown, useMagnetic } from '@/lib/hooks'
 
 // ─── Animation variants ───────────────────────────────────────────────────────
 
@@ -45,7 +43,6 @@ const AVATARS = [
 
 export default function Hero() {
   const sectionRef     = useRef<HTMLElement>(null)
-  const ctaRef         = useRef<HTMLButtonElement>(null)
   const prefersReduced = useReducedMotion()
   const { hero }       = kapable
   const { offer, socialProof } = hero
@@ -58,18 +55,7 @@ export default function Hero() {
   const videoY = useTransform(scrollYProgress, [0, 1], [0, prefersReduced ? 0 : -48])
 
   // Magnetic CTA
-  const rawX  = useMotionValue(0)
-  const rawY  = useMotionValue(0)
-  const ctaX  = useSpring(rawX, { stiffness: 260, damping: 20 })
-  const ctaY  = useSpring(rawY, { stiffness: 260, damping: 20 })
-
-  const onMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (prefersReduced || !ctaRef.current) return
-    const r = ctaRef.current.getBoundingClientRect()
-    rawX.set((e.clientX - (r.left + r.width  / 2)) * 0.26)
-    rawY.set((e.clientY - (r.top  + r.height / 2)) * 0.26)
-  }
-  const onMouseLeave = () => { rawX.set(0); rawY.set(0) }
+  const { ref: ctaRef, style: magneticStyle, onMouseMove, onMouseLeave } = useMagnetic(0.26)
 
   // Countdown
   const cd = useCountdown(offer.countdownSeconds)
@@ -213,7 +199,7 @@ export default function Hero() {
             <motion.button
               ref={ctaRef}
               className="cta-btn text-base px-8 py-4"
-              style={{ x: ctaX, y: ctaY }}
+              style={magneticStyle}
               onMouseMove={onMouseMove}
               onMouseLeave={onMouseLeave}
               whileTap={prefersReduced ? {} : { scale: 0.97 }}

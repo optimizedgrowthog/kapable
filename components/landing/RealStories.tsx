@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import Image from 'next/image'
 import { kapable } from '@/content/kapable'
 import { cn } from '@/lib/utils'
 
@@ -175,7 +176,7 @@ function StoryCard({ story }: { story: typeof kapable.realStories.stories[number
 
       {/* Quote */}
       <p className="font-sans text-ink/75 text-base sm:text-lg leading-relaxed flex-1 mb-8">
-        "{story.quote}"
+        &ldquo;{story.quote}&rdquo;
       </p>
 
       {/* Author */}
@@ -185,12 +186,13 @@ function StoryCard({ story }: { story: typeof kapable.realStories.stories[number
           style={{ background: story.gradient }}
         >
           {imgNum ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={`https://i.pravatar.cc/80?img=${imgNum}`}
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              sizes="40px"
+              className="object-cover"
             />
           ) : story.initials}
         </div>

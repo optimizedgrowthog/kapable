@@ -128,7 +128,7 @@ function AnimatedCounter({
     if (!isInView) return
 
     if (prefersReduced) {
-      // Skip animation, jump straight to final value
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplay(stat.value)
       return
     }

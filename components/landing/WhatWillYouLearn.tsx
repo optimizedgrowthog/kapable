@@ -7,20 +7,6 @@ import { kapable } from '@/content/kapable'
 import { cn } from '@/lib/utils'
 import type { IconKey } from '@/content/kapable'
 
-// ─── Variants ─────────────────────────────────────────────────────────────────
-
-const gridContainer = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
-}
-
-const gridItem = {
-  hidden:  { y: 22 },
-  visible: {
-    y: 0,
-    transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as const },
-  },
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 

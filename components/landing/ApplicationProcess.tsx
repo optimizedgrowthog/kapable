@@ -62,7 +62,7 @@ export default function ApplicationProcess() {
               aria-hidden="true"
             />
 
-            {applicationProcess.steps.map((step, i) => (
+            {applicationProcess.steps.map((step) => (
               <motion.li
                 key={step.number}
                 variants={stepVariant}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import Image from 'next/image'
 import { kapable } from '@/content/kapable'
 import { cn } from '@/lib/utils'
 import type { Testimonial } from '@/content/kapable'
@@ -158,12 +159,13 @@ function TestimonialCard({ testimonial, isActive, onExpand, prefersReduced }: Ca
     >
       {/* Headshot photo layer */}
       {imgNum && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={`https://i.pravatar.cc/300?img=${imgNum}`}
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover object-top"
+          fill
+          sizes="300px"
+          className="object-cover object-top"
           style={{ mixBlendMode: 'luminosity', opacity: 0.55 }}
         />
       )}

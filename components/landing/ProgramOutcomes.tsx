@@ -2,21 +2,16 @@
 
 import { motion, useReducedMotion } from 'motion/react'
 import { kapable } from '@/content/kapable'
+import { staggerContainer, easeOutQuart, viewportOnce } from '@/lib/motion'
 import type { ReactElement } from 'react'
 
 // ─── Variants ─────────────────────────────────────────────────────────────────
 
-const gridContainer = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-}
+const gridContainer = staggerContainer(0.1, 0.05)
 
 const cardVariant = {
-  hidden:  { y: 32, scale: 0.96 },
-  visible: {
-    y: 0, scale: 1,
-    transition: { duration: 0.62, ease: [0.16, 1, 0.3, 1] as const },
-  },
+  hidden:  { opacity: 0, y: 32, scale: 0.96 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.62, ease: easeOutQuart } },
 }
 
 // Per-outcome icons (SVG paths)
@@ -61,10 +56,10 @@ export default function ProgramOutcomes() {
 
         {/* ── Header ── */}
         <motion.div
-          initial={{ y: 24 }}
-          whileInView={{ y: 0 }}
-          viewport={{ once: true, amount: 0.05 }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewportOnce}
+          transition={{ duration: 0.65, ease: easeOutQuart }}
           className="text-center mb-12"
         >
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">
@@ -76,10 +71,17 @@ export default function ProgramOutcomes() {
         </motion.div>
 
         {/* ── Outcome cards ── */}
-        <div className="grid sm:grid-cols-2 gap-4">
+        <motion.div
+          variants={gridContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          className="grid sm:grid-cols-2 gap-4"
+        >
           {programOutcomes.outcomes.map((outcome, i) => (
             <motion.div
               key={outcome}
+              variants={cardVariant}
               whileHover={prefersReduced ? {} : { y: -6, boxShadow: '0 20px 48px rgba(0,0,0,0.28)' }}
               transition={{ type: 'spring', stiffness: 320, damping: 22 }}
               className="group relative bg-neutral-900 rounded-2xl p-7 border border-white/5 hover:border-amber-500/22 transition-colors duration-300 overflow-hidden"
@@ -112,7 +114,7 @@ export default function ProgramOutcomes() {
               <div className="mt-5 h-px bg-amber-500/15 group-hover:bg-amber-500/40 transition-colors duration-300" />
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
       </div>
     </section>

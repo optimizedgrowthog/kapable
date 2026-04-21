@@ -2,30 +2,15 @@
 
 import { useState } from 'react'
 import * as Accordion from '@radix-ui/react-accordion'
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { kapable } from '@/content/kapable'
 import { cn } from '@/lib/utils'
-
-// ─── Variants ─────────────────────────────────────────────────────────────────
-
-const listContainer = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
-}
-
-const itemVariant = {
-  hidden:  { y: 18 },
-  visible: {
-    y: 0,
-    transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as const },
-  },
-}
+import { easeOutQuart, viewportOnce } from '@/lib/motion'
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function FAQ() {
   const [openItems, setOpenItems] = useState<string[]>([])
-  const prefersReduced = useReducedMotion()
   const { faq } = kapable
 
   // Split items into two columns
@@ -42,10 +27,10 @@ export default function FAQ() {
 
         {/* ── Header ── */}
         <motion.h2
-          initial={{ y: 24 }}
-          whileInView={{ y: 0 }}
-          viewport={{ once: true, amount: 0.05 }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewportOnce}
+          transition={{ duration: 0.65, ease: easeOutQuart }}
           className="font-display text-3xl md:text-4xl font-bold text-center mb-12"
         >
           {faq.heading}

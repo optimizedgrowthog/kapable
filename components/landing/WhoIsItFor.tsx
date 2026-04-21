@@ -2,21 +2,16 @@
 
 import { motion, useReducedMotion } from 'motion/react'
 import { kapable } from '@/content/kapable'
+import { staggerContainer, easeOutQuart, viewportOnce } from '@/lib/motion'
 import type { IconKey } from '@/content/kapable'
 
 // ─── Variants ─────────────────────────────────────────────────────────────────
 
-const container = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.13, delayChildren: 0.05 } },
-}
+const container = staggerContainer(0.13, 0.05)
 
 const cardVariant = {
-  hidden:  { y: 36, scale: 0.97 },
-  visible: {
-    opacity: 1, y: 0, scale: 1,
-    transition: { duration: 0.62, ease: [0.16, 1, 0.3, 1] as const },
-  },
+  hidden:  { opacity: 0, y: 36, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.62, ease: easeOutQuart } },
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -31,10 +26,10 @@ export default function WhoIsItFor() {
 
         {/* ── Header ── */}
         <motion.div
-          initial={{ y: 24 }}
-          whileInView={{ y: 0 }}
-          viewport={{ once: true, amount: 0.05 }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewportOnce}
+          transition={{ duration: 0.65, ease: easeOutQuart }}
           className="mb-12"
         >
           <h2 className="font-display text-3xl md:text-4xl font-bold text-ink mb-3">
@@ -50,7 +45,7 @@ export default function WhoIsItFor() {
           variants={container}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.05 }}
+          viewport={viewportOnce}
           className="grid md:grid-cols-3 gap-6 text-left"
         >
           {whoIsItFor.personas.map((persona) => (

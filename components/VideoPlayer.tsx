@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import Image from 'next/image'
 
 interface VideoPlayerProps {
   videoId: string
@@ -24,12 +25,13 @@ export default function VideoPlayer({ videoId, title = 'Kapable Leadership Progr
             className="absolute inset-0"
           >
             {/* Background photo */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="https://picsum.photos/seed/kapable-lp/800/450"
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 800px"
+              className="object-cover"
               style={{ filter: 'blur(3px) brightness(0.45) saturate(0.6)', transform: 'scale(1.06)' }}
             />
 

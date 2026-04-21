@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'motion/react'
 import { kapable } from '@/content/kapable'
 import { cn } from '@/lib/utils'
+import { Marquee } from '@/components/ui/Marquee'
 import type { LogoItem } from '@/content/kapable'
 
 // ─── Variants ─────────────────────────────────────────────────────────────────
@@ -12,17 +13,9 @@ const headingVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] as const } },
 }
 
-const gridContainer = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
-}
-
-const gridItem = {
-  hidden:  { opacity: 0, y: 14, scale: 0.93 },
-  visible: {
-    opacity: 1, y: 0, scale: 1,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
-  },
+const wallReveal = {
+  hidden:  { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const, delay: 0.15 } },
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -30,12 +23,12 @@ const gridItem = {
 export default function LogoWall() {
   const prefersReduced = useReducedMotion()
   const { logoWall } = kapable
-  // Duplicate list for seamless marquee loop
-  const marqueeLogos = [...logoWall.logos, ...logoWall.logos]
+  const rowTop    = logoWall.logos.slice(0, 6)
+  const rowBottom = logoWall.logos.slice(6, 12)
 
   return (
     <section className="bg-cream py-16 px-5 sm:px-6 overflow-hidden">
-      <div className="max-w-5xl mx-auto text-center">
+      <div className="max-w-6xl mx-auto text-center">
 
         {/* ── Heading ── */}
         <motion.h2
@@ -48,42 +41,38 @@ export default function LogoWall() {
           {logoWall.heading}
         </motion.h2>
 
-        {/* ── Mobile: infinite marquee ── */}
-        <div className="md:hidden" aria-hidden="true">
-          {/* Fade masks on both edges */}
-          <div className="relative">
-            <div className="pointer-events-none absolute left-0 inset-y-0 w-12 z-10"
-              style={{ background: 'linear-gradient(90deg, #FAF6F0 0%, transparent 100%)' }} />
-            <div className="pointer-events-none absolute right-0 inset-y-0 w-12 z-10"
-              style={{ background: 'linear-gradient(270deg, #FAF6F0 0%, transparent 100%)' }} />
-
-            <div className={prefersReduced
-              ? 'flex flex-wrap gap-3 justify-center py-2'
-              : 'overflow-hidden py-2'}
-            >
-              <div className={prefersReduced ? 'contents' : 'marquee-track'}>
-                {marqueeLogos.map((logo, i) => (
-                  <LogoChip key={i} logo={logo} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Desktop: staggered grid ── */}
-        <motion.div
-          className="hidden md:grid grid-cols-6 gap-4 items-center"
-          variants={gridContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.05 }}
-        >
+        {/* Screen-reader-accessible company list (visual marquee is aria-hidden) */}
+        <ul className="sr-only" role="list" aria-label="Trusted companies">
           {logoWall.logos.map((logo, i) => (
-            <motion.div key={i} variants={gridItem}>
-              <LogoChip logo={logo} desktop />
-            </motion.div>
+            <li key={i}>{logo.name}</li>
           ))}
-        </motion.div>
+        </ul>
+
+        {/* ── Reduced-motion: static wrap grid ── */}
+        {prefersReduced ? (
+          <div className="flex flex-wrap gap-4 justify-center">
+            {logoWall.logos.map((logo, i) => (
+              <LogoChip key={i} logo={logo} />
+            ))}
+          </div>
+        ) : (
+          /* ── Animated: one-shot fade-rise, then continuous reverse-marquee ── */
+          <motion.div
+            aria-hidden="true"
+            variants={wallReveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.05 }}
+            className="flex flex-col gap-4 md:gap-5"
+          >
+            <Marquee direction="right" speed={32} fadeColor="#FAF6F0">
+              {rowTop.map((logo, i) => <LogoChip key={i} logo={logo} />)}
+            </Marquee>
+            <Marquee direction="left" speed={32} fadeColor="#FAF6F0">
+              {rowBottom.map((logo, i) => <LogoChip key={i} logo={logo} />)}
+            </Marquee>
+          </motion.div>
+        )}
 
       </div>
     </section>
@@ -92,15 +81,12 @@ export default function LogoWall() {
 
 // ─── Logo chip ────────────────────────────────────────────────────────────────
 
-function LogoChip({ logo, desktop = false }: { logo: LogoItem; desktop?: boolean }) {
+function LogoChip({ logo }: { logo: LogoItem }) {
   const prefersReduced = useReducedMotion()
 
   return (
     <motion.div
-      className={cn(
-        'bg-white rounded-xl flex items-center justify-center shadow-sm select-none border border-ink/5',
-        desktop ? 'py-3 px-5 w-full h-14' : 'py-2.5 px-4 mx-2 shrink-0 min-w-[96px] h-12',
-      )}
+      className="bg-white rounded-xl flex items-center justify-center shadow-sm select-none border border-ink/5 shrink-0 min-w-[110px] md:min-w-[160px] h-12 md:h-14 py-2.5 md:py-3 px-4 md:px-5 mx-2 md:mx-2.5"
       whileHover={prefersReduced ? {} : { y: -3, boxShadow: '0 8px 28px rgba(0,0,0,0.12)' }}
       transition={{ type: 'spring', stiffness: 400, damping: 24 }}
     >
